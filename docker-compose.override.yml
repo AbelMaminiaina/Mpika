@@ -1,0 +1,13 @@
+# Docker Compose Override for Development
+# This file is automatically merged with docker-compose.yml in development
+
+version: '3.8'
+
+services:
+  postgres:
+    # Expose PostgreSQL logs in development
+    command: postgres -c log_statement=all -c log_destination=stderr
+
+  redis:
+    # More verbose logging in development
+    command: redis-server --appendonly yes --requirepass redis123 --loglevel verbose

@@ -1,0 +1,259 @@
+// Mpikarakara - Database Schema
+// Intelligent Life Management Assistant
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  profile       UserProfile?
+  tasks         Task[]
+  schedules     Schedule[]
+  analytics     Analytics[]
+  conversations Conversation[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Sleep preferences
+  sleepHours          Int      @default(8)
+  wakeUpTime          String   @default("07:00")
+  bedTime             String   @default("23:00")
+
+  // Energy preferences
+  energyPeakTime      String   @default("morning") // "morning", "afternoon", "evening"
+
+  // Notification preferences
+  notificationsEnabled Boolean @default(true)
+  reminderMinutes      Int     @default(30)
+  pauseReminders       Boolean @default(true)
+
+  // Other preferences
+  preferredLanguage   String   @default("fr")
+  timezone            String   @default("Europe/Paris")
+  theme               String   @default("light") // "light", "dark", "system"
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("user_profiles")
+}
+
+// ============================================
+// TASK MANAGEMENT
+// ============================================
+
+model Task {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  category    TaskCategory @default(WORK)
+  priority    Priority     @default(MEDIUM)
+
+  // Duration in minutes
+  duration    Int       @default(60)
+
+  // Scheduling
+  deadline    DateTime?
+  preferredTime String?  // "morning", "afternoon", "evening", null for flexible
+
+  // Status
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  // Recurrence
+  recurring   Boolean   @default(false)
+  recurrence  Recurrence?
+  parentTaskId String?  // For recurring task instances
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  scheduleItems ScheduleItem[]
+
+  @@index([userId, completed])
+  @@index([userId, deadline])
+  @@map("tasks")
+}
+
+enum TaskCategory {
+  WORK
+  STUDY
+  LEISURE
+  REST
+  SPORT
+  SOCIAL
+  HOUSEHOLD
+  PERSONAL
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Recurrence {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+// ============================================
+// SCHEDULE MANAGEMENT
+// ============================================
+
+model Schedule {
+  id          String         @id @default(uuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date        DateTime       @db.Date
+  optimized   Boolean        @default(false)
+  mentalLoadScore Float      @default(0)
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  items       ScheduleItem[]
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("schedules")
+}
+
+model ScheduleItem {
+  id          String    @id @default(uuid())
+  scheduleId  String
+  schedule    Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  taskId      String?
+  task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  title       String
+  type        ScheduleItemType @default(TASK)
+
+  startTime   DateTime
+  endTime     DateTime
+
+  completed   Boolean   @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([scheduleId, startTime])
+  @@map("schedule_items")
+}
+
+enum ScheduleItemType {
+  TASK
+  BREAK
+  BUFFER
+  LUNCH
+  SLEEP
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+model Analytics {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date              DateTime @db.Date
+
+  // Task metrics
+  tasksPlanned      Int      @default(0)
+  tasksCompleted    Int      @default(0)
+
+  // Time metrics (in minutes)
+  workTime          Int      @default(0)
+  studyTime         Int      @default(0)
+  leisureTime       Int      @default(0)
+  sportTime         Int      @default(0)
+  socialTime        Int      @default(0)
+  restTime          Int      @default(0)
+
+  // Scores
+  productivityScore Float    @default(0)
+  mentalLoadScore   Float    @default(0)
+  balanceScore      Float    @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("analytics")
+}
+
+// ============================================
+// AI CONVERSATION
+// ============================================
+
+model Conversation {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages  Message[]
+
+  @@index([userId, createdAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role           MessageRole
+  content        String
+
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}

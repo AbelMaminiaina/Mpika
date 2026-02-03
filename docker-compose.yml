@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: mpikarakara-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mpikarakara
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: mpikarakara
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mpikarakara -d mpikarakara"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mpikarakara-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: mpikarakara-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mpikarakara-network
+
+  # pgAdmin (optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mpikarakara-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mpikarakara.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - mpikarakara-network
+
+  # Backend API (optional - for full stack deployment)
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: mpikarakara-backend
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3000
+  #     DATABASE_URL: postgresql://mpikarakara:mpikarakara_secret_2024@postgres:5432/mpikarakara
+  #     REDIS_URL: redis://:mpikarakara_redis_2024@redis:6379
+  #     JWT_SECRET: your-jwt-secret-change-in-production
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - mpikarakara-network
+
+volumes:
+  postgres_data:
+    name: mpikarakara-postgres-data
+  redis_data:
+    name: mpikarakara-redis-data
+  pgadmin_data:
+    name: mpikarakara-pgadmin-data
+
+networks:
+  mpikarakara-network:
+    name: mpikarakara-network
+    driver: bridge

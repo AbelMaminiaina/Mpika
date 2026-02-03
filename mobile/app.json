@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Mpikarakara",
+    "slug": "mpikarakara",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#6366f1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mpikarakara.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.mpikarakara.app",
+      "versionCode": 1,
+      "permissions": [
+        "NOTIFICATIONS",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
+}
