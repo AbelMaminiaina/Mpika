@@ -32,10 +32,6 @@ export default function DashboardScreen({ navigation }) {
 
   const todaySchedule = schedules[currentDate];
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     await Promise.all([
@@ -45,6 +41,10 @@ export default function DashboardScreen({ navigation }) {
       dispatch(fetchSuggestions()),
     ]);
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleOptimize = () => {
     dispatch(optimizeSchedule(currentDate));

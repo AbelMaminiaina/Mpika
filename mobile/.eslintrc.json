@@ -1,12 +1,12 @@
 {
   "env": {
     "react-native/react-native": true,
-    "es2022": true
+    "es2022": true,
+    "browser": true
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react/recommended"
   ],
   "parserOptions": {
     "ecmaFeatures": {
@@ -27,9 +27,11 @@
   "rules": {
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+    "react/no-unescaped-entities": "off",
+    "no-unused-vars": "warn"
   },
   "globals": {
-    "__DEV__": "readonly"
+    "__DEV__": "readonly",
+    "localStorage": "readonly"
   }
 }

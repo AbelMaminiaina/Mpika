@@ -29,13 +29,13 @@ export default function TasksScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCompleted, setShowCompleted] = useState('pending');
 
-  useEffect(() => {
-    loadTasks();
-  }, [filters]);
-
   const loadTasks = () => {
     dispatch(fetchTasks());
   };
+
+  useEffect(() => {
+    loadTasks();
+  }, [filters]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
