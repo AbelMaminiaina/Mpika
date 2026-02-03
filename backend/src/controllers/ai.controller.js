@@ -312,7 +312,7 @@ function generateFallbackResponse(message, context) {
 
   // Check for common intents
   if (messageLower.includes('bonjour') || messageLower.includes('salut')) {
-    return `Bonjour ! Je suis Mpikarakara, ton assistant de gestion du temps. Comment puis-je t'aider aujourd'hui ?`;
+    return 'Bonjour ! Je suis Mpikarakara, ton assistant de gestion du temps. Comment puis-je t\'aider aujourd\'hui ?';
   }
 
   if (messageLower.includes('charge') || messageLower.includes('stress')) {
@@ -325,18 +325,18 @@ function generateFallbackResponse(message, context) {
 
   if (messageLower.includes('tâche') || messageLower.includes('faire')) {
     if (context.pendingTasks.length === 0) {
-      return `Tu n'as pas de tâches en attente. Profite de ce moment de calme ! Veux-tu ajouter une nouvelle tâche ?`;
+      return 'Tu n\'as pas de tâches en attente. Profite de ce moment de calme ! Veux-tu ajouter une nouvelle tâche ?';
     }
     const taskList = context.pendingTasks.slice(0, 3).map(t => `- ${t.title}`).join('\n');
     return `Tu as ${context.pendingTasks.length} tâches en attente. Voici les plus importantes :\n${taskList}\n\nVeux-tu que je t'aide à les planifier ?`;
   }
 
   if (messageLower.includes('planning') || messageLower.includes('organiser')) {
-    return `Je peux t'aider à optimiser ton planning ! Pour cela, dis-moi :\n1. Quelles sont tes tâches prioritaires ?\n2. As-tu des contraintes horaires ?\n3. Comment te sens-tu aujourd'hui ?`;
+    return 'Je peux t\'aider à optimiser ton planning ! Pour cela, dis-moi :\n1. Quelles sont tes tâches prioritaires ?\n2. As-tu des contraintes horaires ?\n3. Comment te sens-tu aujourd\'hui ?';
   }
 
   // Default response
-  return `Je suis là pour t'aider à mieux gérer ton temps et réduire ta charge mentale. Tu peux me demander :\n- D'organiser ton planning\n- De vérifier ta charge mentale\n- Des conseils de productivité\n- D'ajouter ou gérer tes tâches\n\nQue veux-tu faire ?`;
+  return 'Je suis là pour t\'aider à mieux gérer ton temps et réduire ta charge mentale. Tu peux me demander :\n- D\'organiser ton planning\n- De vérifier ta charge mentale\n- Des conseils de productivité\n- D\'ajouter ou gérer tes tâches\n\nQue veux-tu faire ?';
 }
 
 function generateScheduleSuggestions(context) {
