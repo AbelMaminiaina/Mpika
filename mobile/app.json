@@ -30,8 +30,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "e10f34fd-c87f-4419-9994-870410a3ed3d"
       }
-    }
+    },
+    "owner": "rabetsimialona"
   }
 }

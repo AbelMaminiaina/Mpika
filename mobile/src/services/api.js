@@ -3,14 +3,20 @@
  */
 
 import axios from 'axios';
+import { Platform } from 'react-native';
 import storage from './storage';
 import { store } from '../store';
 import { refreshAccessToken, logout } from '../store/slices/authSlice';
 
-// Configure base URL based on environment
-const API_URL = __DEV__
-  ? 'http://localhost:3000/api'
-  : 'https://api.mpikarakara.com/api';
+// Configure base URL based on platform
+// Android: 10.0.2.2 = host machine's localhost from emulator
+// TODO: Change to production URL when deploying
+const getBaseUrl = () => {
+  if (Platform.OS === 'android') return 'http://10.0.2.2:3000/api';
+  return 'http://localhost:3000/api';
+};
+
+const API_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_URL,
